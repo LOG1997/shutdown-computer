@@ -95,7 +95,7 @@ export function ShutDownForm() {
 
         setIsDialogOpen(false)
         const values = {
-            address: 'http://' + form.getFieldValue('address') + '/shutdown',
+            address: 'https://' + form.getFieldValue('address') + '/shutdown',
             data: { key: form.getFieldValue('password') },
         }
         try {
