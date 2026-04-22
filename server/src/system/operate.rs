@@ -136,6 +136,7 @@ pub struct OsInfo {
     pub kernel_version: Option<String>,
     pub os_version: Option<String>,
     pub host_name: Option<String>,
+    pub platform: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -187,8 +188,8 @@ pub fn get_system_info_json() -> Option<SystemInfoResponse> {
         kernel_version: System::kernel_version(),
         os_version: System::os_version(),
         host_name: System::host_name(),
+        platform: System::long_os_version(),
     };
-
     // 2. CPU 信息
     let cpus = sys.cpus();
     let global_cpu_usage = sys.global_cpu_usage();
@@ -236,7 +237,13 @@ pub fn get_system_info_json() -> Option<SystemInfoResponse> {
             critical_threshold: comp.critical(),
         })
         .collect();
-
+    // 计算CPU平均温度
+    // let cpu_ava_temp = components
+    //     .iter()
+    //     .map(|comp| comp.temperature().unwrap_or(0.0))
+    //     .sum::<f32>()
+    //     / components.len() as f32;
+    // println!("CPU平均温度: {}°C", cpu_ava_temp);
     // 组装最终结构
     let system_info = SystemInfoResponse {
         os: os_info,

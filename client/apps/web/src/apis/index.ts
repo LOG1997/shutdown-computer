@@ -20,11 +20,16 @@ export const getDeviceStatus = ({ config }: { config: any }) => {
     })
 }
 
-export const getDeviceInfo = ({ config }: { config: any }) => {
-    return fetch(config.baseUrl + '/getDeviceInfo', {
+export const getDeviceInfo = async ({ config }: { config: any }) => {
+    const response = await fetch(config.baseUrl + '/getDeviceInfo', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
     })
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
 }
