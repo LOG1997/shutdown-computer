@@ -21,7 +21,6 @@ function Dashboard() {
         queryFn: async () => {
             if (!baseUrl) throw new Error("No URL provided")
             const response = await getDeviceStatus({ config: { baseUrl } })
-            console.log('asdpaspdp', response)
             return response
         },
         // 只有当 queryUrl 存在时才启用查询
