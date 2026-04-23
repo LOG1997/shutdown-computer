@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
-use serde_json;
 use std::process::Command;
-use sysinfo::{Components, CpuRefreshKind, Disks, Networks, Process, System};
+use sysinfo::{Components, CpuRefreshKind, Disks, System};
 
 pub fn execute_shutdown(immediate: bool) {
     println!("正在执行关机指令...");
@@ -96,12 +95,12 @@ pub fn execute_reboot(immediate: bool) {
         println!("正在尝试 Linux 重启...");
         // 方案 1: 使用 systemctl (现代大多数 Linux 发行版推荐，且如果服务以 root 运行则无需 sudo)
         // 尝试直接执行 reboot (如果程序以 root 运行)
-        let status = Command::new("sudo")
-            .arg("/sbin/reboot")
+        let status = Command::new("shutdown")
+            .arg("-r")
             .arg("-h")
             .arg(match immediate {
                 true => "now",
-                false => "now",
+                false => "+1",
             })
             .status();
 
@@ -250,7 +249,6 @@ pub fn get_system_info_json() -> Option<SystemInfoResponse> {
         .map(|comp| comp.temperature().unwrap_or(0.0))
         .sum::<f32>()
         / cpu_comp.len() as f32;
-    println!("CPU平均温度: {}°C", cpu_ava_temp);
     cpu_info.temperature = cpu_ava_temp;
     // 组装最终结构
     let system_info = SystemInfoResponse {

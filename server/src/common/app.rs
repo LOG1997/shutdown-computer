@@ -15,9 +15,4 @@ pub fn get_app_dir() -> PathBuf {
             .expect("Failed to get parent directory of executable")
             .to_path_buf(),
     }
-    // std::env::current_exe()
-    //     .expect("Failed to get current executable path")
-    //     .parent()
-    //     .expect("Failed to get parent directory of executable")
-    //     .to_path_buf()
 }

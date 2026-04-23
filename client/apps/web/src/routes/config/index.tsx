@@ -103,7 +103,7 @@ function Configuration() {
         router.navigate({ to: '/dashboard', replace: true })
     }
     return (
-        <>
+        <div className='flex justify-center'>
             <Card className="w-full sm:max-w-md px-2">
                 <CardHeader>
                     <CardTitle>配置地址</CardTitle>
@@ -216,6 +216,6 @@ function Configuration() {
                     }
                 </div >
             </CustomDialog >
-        </>
+        </div>
     )
 }

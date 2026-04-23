@@ -20,6 +20,7 @@ import { useForm } from "@tanstack/react-form"
 import { toast } from "sonner"
 
 interface Props {
+    mode: 'reboot' | 'shutdown';
     open: boolean;
     setOpen: (open: boolean) => void;
     handleSubmit: (values: { password: string, immediate: boolean }) => void;
@@ -33,7 +34,7 @@ const formSchema = z.object({
 })
 export default function ShutDownDialog(props: Props) {
 
-    const { open, setOpen, handleSubmit } = props; const form = useForm({
+    const { open, setOpen, mode = 'shutdown', handleSubmit } = props; const form = useForm({
         defaultValues: {
             password: "",
             immediate: true,
@@ -58,9 +59,9 @@ export default function ShutDownDialog(props: Props) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>安全确认</DialogTitle>
+                    <DialogTitle>{mode === 'reboot' ? '重启' : '关机'}安全确认</DialogTitle>
                     <DialogDescription>
-                        为了安全起见，请输入操作密码以确认关机。
+                        为了安全起见，请输入操作密码以确认{mode === 'reboot' ? '重启' : '关机'}。
                     </DialogDescription>
                 </DialogHeader>
                 <form
@@ -123,23 +124,6 @@ export default function ShutDownDialog(props: Props) {
                         />
                     </FieldGroup>
                 </form>
-                {/* <div className="py-4">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block">
-                        确认密码
-                    </label>
-                    <Input
-                        type="password"
-                        onChange={(e) => setValue(e.target.value)}
-                        placeholder="请输入密码"
-                        autoFocus // 自动聚焦方便输入
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                handleConfirm()
-                            }
-                        }}
-                    />
-                </div> */}
-
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         取消

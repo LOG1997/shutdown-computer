@@ -77,7 +77,6 @@ pub async fn reboot_handler(
 }
 
 pub async fn get_device_status() -> (StatusCode, Json<serde_json::Value>) {
-    println!("get_device_status");
     return (
         StatusCode::OK,
         Json(serde_json::json!({
@@ -90,7 +89,6 @@ pub async fn get_device_status() -> (StatusCode, Json<serde_json::Value>) {
 }
 
 pub async fn get_system_info() -> (StatusCode, Json<serde_json::Value>) {
-    println!("get_system_info_json");
     let system_info = get_system_info_json();
     let data_json = match system_info {
         Some(info) => serde_json::to_value(info).unwrap_or(serde_json::Value::Null),

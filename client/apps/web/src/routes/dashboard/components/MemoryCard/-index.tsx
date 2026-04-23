@@ -22,11 +22,11 @@ export default function OsCard(props: MemoryProps) {
     return (
         <div className={className + " flex justify-center items-center min-h-32"}>
             {
-                isLoading || !data ?
+                isLoading ?
                     <Card className="relative mx-auto w-full h-full max-w-sm pt-0">
                         <Spinner className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                     </Card> :
-                    <Card className="relative mx-auto w-full max-w-sm pt-0">
+                    <Card className={`relative mx-auto w-full max-w-sm pt-0 ${!data ? 'bg-muted/50 backdrop-blur-[2px] cursor-not-allowed' : ''}`}>
                         <CardHeader className="flex items-center border-b pt-4">
                             <div className='flex items-center gap-2'>
                                 <MemoryStick />
@@ -40,7 +40,7 @@ export default function OsCard(props: MemoryProps) {
                                 </div>
                                 <div className="flex">
                                     <div className="text-sm font-bold">
-                                        <span>{(Number(data.used_memory) / (1024 * 1024 * 1024)).toFixed(1)}</span>
+                                        <span>{data ? (Number(data.used_memory) / (1024 * 1024 * 1024)).toFixed(1) : "--"}</span>
                                         <span className="text-[0.5rem] self-baseline text-muted-foreground">GB</span>
                                     </div>
                                 </div>
@@ -50,12 +50,12 @@ export default function OsCard(props: MemoryProps) {
                                     <p className="text-xs text-muted-foreground">可用</p>
                                 </div>
                                 <div>
-                                    <span className="text-sm font-bold">{(Number(data.free_memory) / (1024 * 1024 * 1024)).toFixed(1)}</span>
+                                    <span className="text-sm font-bold">{data ? (Number(data.free_memory) / (1024 * 1024 * 1024)).toFixed(1) : "--"}</span>
                                     <span className="text-[0.5rem] self-baseline text-muted-foreground">GB</span>
                                 </div>
                             </div>
                             <div id="cpu-usage" className="flex flex-col gap-3 border-gray-200 pl-4">
-                                <Chart usedMemory={data.used_memory} totalMemory={data.total_memory} />
+                                <Chart usedMemory={data ? data.used_memory : 0} totalMemory={data ? data.total_memory : 1} />
                             </div>
                         </CardContent>
                     </Card>

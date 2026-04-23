@@ -9,11 +9,16 @@ export const sendShutDownCommand = async ({ data, config }: { data?: { key: stri
         },
         body: JSON.stringify(data),
     })
-    console.log('resppp', response)
-    // if (!response.ok) {
-    //     throw new Error(`HTTP error! status: ${response.status}`);
-    // }
-
+    return response.json();
+}
+export const sendRebootCommand = async ({ data, config }: { data?: { key: string, immediate: boolean }, config: any }) => {
+    const response = await fetch(config.baseUrl + '/reboot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
     return response.json();
 }
 

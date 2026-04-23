@@ -9,7 +9,7 @@ import { useMutation } from '@tanstack/react-query'
 import ShutdownDialog from './-ShutDownDialog'
 import { useState } from "react"
 import { useConfigurationStore } from '@/stores'
-import { sendShutDownCommand } from '@/apis'
+import { sendShutDownCommand, sendRebootCommand } from '@/apis'
 import { toast } from "sonner"
 interface OsProps {
     data: boolean,
@@ -19,11 +19,12 @@ interface OsProps {
 export default function OsCard(props: OsProps) {
     const { isLoading, data, className } = props
     const [dialogOpen, setDialogOpen] = useState(false)
+    const [mode, setMode] = useState<"shutdown" | "reboot">("shutdown")
 
     const configData = useConfigurationStore((state) => state.config)
     const { protocol } = window.location
     const baseUrl = protocol + "//" + configData?.host + ":" + configData?.port
-    const mutation = useMutation({
+    const mutationShutdown = useMutation({
         mutationKey: ["setCommand"],
         mutationFn: async (params: { key: string, immediate: boolean }) => {
             if (!baseUrl) throw new Error("No URL provided")
@@ -31,21 +32,45 @@ export default function OsCard(props: OsProps) {
             return response
         },
     })
+    const mutationReboot = useMutation({
+        mutationKey: ["setCommand"],
+        mutationFn: async (params: { key: string, immediate: boolean }) => {
+            if (!baseUrl) throw new Error("No URL provided")
+            const response = await sendRebootCommand({ config: { baseUrl }, data: params })
+            return response
+        },
+    })
+    const openDialog = (mode: 'reboot' | 'shutdown') => {
+        setDialogOpen(true)
+        setMode(mode)
+    }
     const handleConfirmShutdown = (values: { password: string, immediate: boolean }) => {
-        console.log('关机')
         setDialogOpen(false)
         const params = {
             key: values.password,
             immediate: values.immediate
         }
-        mutation.mutateAsync(params).then(res => {
-            console.log("res", res)
-            if (!res.success) {
-                toast.error(res.msg || '关机失败')
-            }
-        }).catch(err => {
-            console.log('errr;', err)
-        })
+        if (mode === 'reboot') {
+            mutationReboot.mutateAsync(params).then(res => {
+                console.log("res", res)
+                if (!res.success) {
+                    toast.error(res.msg || '重启命令失败')
+                }
+            }).catch(err => {
+                console.log('errr;', err)
+            })
+        }
+        else {
+            mutationShutdown.mutateAsync(params).then(res => {
+                console.log("res", res)
+                if (!res.success) {
+                    toast.error(res.msg || '关机失败')
+                }
+            }).catch(err => {
+                console.log('errr;', err)
+            })
+        }
+
     }
     return (
         <div className={className + " flex justify-center items-center min-h-18"}>
@@ -70,8 +95,8 @@ export default function OsCard(props: OsProps) {
                                 }
                             </div>
                             <div id="shut-down" className="pl-12 flex gap-2">
-                                <Button variant="destructive" onClick={() => { setDialogOpen(true) }}>关机</Button>
-                                <Button variant="outline">重启</Button>
+                                <Button variant="destructive" disabled={!data} onClick={() => { openDialog('shutdown') }}>关机</Button>
+                                <Button variant="outline" disabled={!data} onClick={() => openDialog('reboot')} >重启</Button>
                             </div>
 
                         </CardContent>
@@ -81,6 +106,7 @@ export default function OsCard(props: OsProps) {
                 open={dialogOpen}
                 setOpen={setDialogOpen}
                 handleSubmit={handleConfirmShutdown}
+                mode={mode}
             />
         </div >
     )
