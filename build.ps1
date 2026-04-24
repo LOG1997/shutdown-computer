@@ -70,6 +70,9 @@ Copy-Item -Path "server/config.toml" -Destination "./dist/"
 # 复制前端构建产物 (递归复制目录内容)
 Copy-Item -Path "client/apps/web/dist/*" -Destination "./dist/web/" -Recurse
 
+# 复制安装脚本
+Copy-Item -Path "install.ps1" -Destination "./dist/"
+
 # 压缩包，把dist内的文件夹和文件压缩成shutdown-remote.zip，放在dist目录中，打包最小化
 $zipFile = "shutdown-remote.zip"
 Compress-Archive -Path "./dist/*" -DestinationPath $zipFile

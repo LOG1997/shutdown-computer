@@ -24,12 +24,10 @@ export default defineConfig({
                 name: 'ShutdownRemote',
                 short_name: 'ShutdownRemote',
                 start_url: '/', // Hash根路由入口
+                scope: '/',
                 display: 'standalone', // 独立App窗口，无浏览器地址栏
                 background_color: '#ffffff',
                 theme_color: '#165DFF',
-                // 👇 iOS 必须加，否则顶部会有浏览器栏
-                // appleMobileWebAppCapable: 'yes',
-                // appleMobileWebAppStatusBarStyle: 'default',
                 icons: [
                     {
                         src: 'icon-192x192.png',
@@ -53,7 +51,7 @@ export default defineConfig({
                 // Hash路由关键：所有#导航都走index.html兜底
                 navigateFallback: 'index.html',
                 // 匹配所有hash路由路径
-                navigateFallbackAllowlist: [/^\/#/],
+                navigateFallbackAllowlist: [/./],
                 globPatterns: ['**/*.{html,js,css,ico,png,svg}']
             },
             devOptions: {

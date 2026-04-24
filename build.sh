@@ -29,6 +29,7 @@ cp server/cert.pem dist/
 cp server/key.pem dist/
 cp server/config.toml dist/
 cp -r client/apps/web/dist/* dist/web/
+cp install.sh dist/
 
 # 5. 压缩包，把dist内的文件夹和文件压缩成shutdown-remote.zip，放在dist目录中，打包最小化
 echo "打包压缩..."
