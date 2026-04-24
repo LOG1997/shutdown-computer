@@ -29,15 +29,61 @@ if (-not (Test-Path $ExePathInDist)) {
 
 Write-Host "正在安装 ShutdownRemote..." -ForegroundColor Cyan
 
+# 首先检查计划任务是否已存在
+$NeedReinstall = $false
+try {
+    $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
+    if ($ExistingTask) {
+        Write-Host "⚠️  警告: 计划任务 '$TaskName' 已存在。" -ForegroundColor Yellow
+        $ConfirmReinstall = Read-Host "是否重新安装？(y/N)"
+        if ($ConfirmReinstall -match '^[Yy]$') {
+            $NeedReinstall = $true
+            Write-Host "将执行重新安装..." -ForegroundColor Cyan
+            
+            # 停止并删除旧任务
+            Write-Host "正在卸载旧任务..." -ForegroundColor Yellow
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+            
+            # 清空目标目录
+            if (Test-Path $TargetDir) {
+                Write-Host "正在清空目标目录..." -ForegroundColor Yellow
+                Remove-Item -Path $TargetDir -Recurse -Force
+            }
+            
+            Write-Host "旧版本已清理完毕。" -ForegroundColor Green
+        } else {
+            Write-Host "❌ 安装已取消。" -ForegroundColor Red
+            exit 0
+        }
+    }
+} catch {
+    # 任务不存在，检查目标目录是否有残留文件
+    if (Test-Path $TargetDir) {
+        $FilesInDir = Get-ChildItem -Path $TargetDir -Force -ErrorAction SilentlyContinue
+        if ($FilesInDir) {
+            Write-Host "⚠️  警告: 目标目录 '$TargetDir' 已存在且包含文件（但任务未注册）。" -ForegroundColor Yellow
+            $ConfirmClean = Read-Host "是否清空并重新安装？(y/N)"
+            if ($ConfirmClean -match '^[Yy]$') {
+                $NeedReinstall = $true
+                Write-Host "正在清空目标目录..." -ForegroundColor Yellow
+                Remove-Item -Path $TargetDir -Recurse -Force
+            } else {
+                Write-Host "❌ 安装已取消。" -ForegroundColor Red
+                exit 0
+            }
+        }
+    }
+}
+
 # 1. 复制文件到用户目录
 try {
-    # 如果目标目录已存在，先删除以保证更新干净
-    if (Test-Path $TargetDir) {
-        Write-Host "检测到旧版本，正在清理..." -ForegroundColor Yellow
-        Remove-Item -Path $TargetDir -Recurse -Force
-    }
-
     Write-Host "正在复制文件到 $TargetDir ..." -ForegroundColor Green
+    
+    # 如果目录不存在则创建
+    if (-not (Test-Path $TargetDir)) {
+        New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
+    }
+    
     Copy-Item -Path $SourceDir -Destination $TargetDir -Recurse -Force
     
     Write-Host "文件复制完成。" -ForegroundColor Green
@@ -51,13 +97,6 @@ catch {
 $FinalExePath = Join-Path $TargetDir $ExeName
 
 try {
-    # 检查是否已存在同名任务，如果存在则删除
-    $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-    if ($ExistingTask) {
-        Write-Host "发现已存在的计划任务，正在卸载..." -ForegroundColor Yellow
-        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
-    }
-
     # 定义触发器：系统启动时
     $Trigger = New-ScheduledTaskTrigger -AtStartup
     

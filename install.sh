@@ -23,12 +23,58 @@ fi
 
 echo "正在安装 ${SERVICE_NAME}..."
 
+# 首先检查服务是否已存在
+NEED_REINSTALL=false
+if systemctl list-unit-files | grep -q "${SERVICE_NAME}.service"; then
+    echo "⚠️  警告: 系统服务 '${SERVICE_NAME}' 已存在。"
+    read -p "是否重新安装？(y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        NEED_REINSTALL=true
+        echo "将执行重新安装..."
+        
+        # 停止并禁用旧服务
+        echo "正在停止旧服务..."
+        systemctl stop "$SERVICE_NAME" 2>/dev/null || true
+        systemctl disable "$SERVICE_NAME" 2>/dev/null || true
+        
+        # 删除旧服务文件
+        echo "正在删除旧服务文件..."
+        rm -f "$SERVICE_FILE"
+        
+        # 重载 systemd
+        systemctl daemon-reload
+        
+        # 清空目标目录
+        if [ -d "$TARGET_DIR" ]; then
+            echo "正在清空目标目录..."
+            rm -rf "$TARGET_DIR"
+        fi
+        
+        echo "旧版本已清理完毕。"
+    else
+        echo "❌ 安装已取消。"
+        exit 0
+    fi
+else
+    # 服务不存在，检查目标目录是否有残留文件
+    if [ -d "$TARGET_DIR" ] && [ "$(ls -A "$TARGET_DIR" 2>/dev/null)" ]; then
+        echo "⚠️  警告: 目标目录 '$TARGET_DIR' 已存在且包含文件（但服务未注册）。"
+        read -p "是否清空并重新安装？(y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            NEED_REINSTALL=true
+            echo "正在清空目标目录..."
+            rm -rf "$TARGET_DIR"
+        else
+            echo "❌ 安装已取消。"
+            exit 0
+        fi
+    fi
+fi
+
 # 1. 复制文件到目标目录
 echo "正在复制文件到 ${TARGET_DIR} ..."
-# 如果目标目录已存在，先删除以保证更新干净
-if [ -d "$TARGET_DIR" ]; then
-    rm -rf "$TARGET_DIR"
-fi
 
 # 创建目标目录并复制
 mkdir -p "$TARGET_DIR"
