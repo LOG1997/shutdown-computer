@@ -9,9 +9,9 @@
 #>
 
 # 定义变量
-$SourceDir = Join-Path $PSScriptRoot "dist"
+$SourceDir = Join-Path $PSScriptRoot "/"
 $TargetDir = Join-Path $env:USERPROFILE "shutdown-remote"
-$ExeName = "shutdown-auto.exe"
+$ExeName = "shutdown-remote.exe"
 $TaskName = "ShutdownRemoteAutoStart"
 $TaskDescription = "Automatically start ShutdownRemote agent on system startup."
 
@@ -51,12 +51,14 @@ try {
             }
             
             Write-Host "旧版本已清理完毕。" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "❌ 安装已取消。" -ForegroundColor Red
             exit 0
         }
     }
-} catch {
+}
+catch {
     # 任务不存在，检查目标目录是否有残留文件
     if (Test-Path $TargetDir) {
         $FilesInDir = Get-ChildItem -Path $TargetDir -Force -ErrorAction SilentlyContinue
@@ -67,7 +69,8 @@ try {
                 $NeedReinstall = $true
                 Write-Host "正在清空目标目录..." -ForegroundColor Yellow
                 Remove-Item -Path $TargetDir -Recurse -Force
-            } else {
+            }
+            else {
                 Write-Host "❌ 安装已取消。" -ForegroundColor Red
                 exit 0
             }
@@ -84,7 +87,7 @@ try {
         New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
     }
     
-    Copy-Item -Path $SourceDir -Destination $TargetDir -Recurse -Force
+    Copy-Item -Path "$SourceDir\*" -Destination $TargetDir -Recurse -Force -Exclude "shutdown-remote.zip"
     
     Write-Host "文件复制完成。" -ForegroundColor Green
 }
@@ -110,13 +113,13 @@ try {
     # 这里使用 SYSTEM 账户通常更适合后台服务类应用，且不需要用户登录即可运行
     # 如果需要仅在用户登录后运行，可将 -User 改为 $env:USERNAME 并去掉 -RunLevel Highest
     Register-ScheduledTask -TaskName $TaskName `
-                           -Trigger $Trigger `
-                           -Action $Action `
-                           -Settings $Settings `
-                           -User "SYSTEM" `
-                           -RunLevel Highest `
-                           -Description $TaskDescription `
-                           -Force | Out-Null
+        -Trigger $Trigger `
+        -Action $Action `
+        -Settings $Settings `
+        -User "SYSTEM" `
+        -RunLevel Highest `
+        -Description $TaskDescription `
+        -Force | Out-Null
 
     Write-Host "计划任务 '$TaskName' 创建成功。" -ForegroundColor Green
     Write-Host "安装完成！" -ForegroundColor Cyan

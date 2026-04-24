@@ -24,7 +24,7 @@ mkdir -p dist/web
 
 # 4. 复制文件
 echo "[4/4] 复制文件..."
-cp server/target/release/shutdown-auto dist/
+cp server/target/release/shutdown-remote dist/
 cp server/cert.pem dist/
 cp server/key.pem dist/
 cp server/config.toml dist/
