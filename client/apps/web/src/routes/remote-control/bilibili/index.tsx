@@ -4,6 +4,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Dot } from 'lucide-react'
 import type { RemoteControlType } from '@/routes/remote-control/-type'
 import { RemoteControlTypeList } from '@/routes/remote-control/-type'
+import Sector from '@/components/Sector'
 
 export const Route = createFileRoute('/remote-control/bilibili/')({
     component: RouteComponent,
@@ -24,7 +25,7 @@ function RouteComponent() {
     // useEffect(() => {
     //     subscribeTopic();
     // }, [])
-    return <div>
+    return <div className='flex justify-center'>
         <h2>连接状态：{
             isConnected ?
                 <div className="flex gap-1 items-center">
@@ -37,9 +38,14 @@ function RouteComponent() {
                 </div>
         }
         </h2>
-
-        <Button onClick={subscribeTopic}>订阅</Button>
-        <Button onClick={() => publishTopic(RemoteControlTypeList.UP)}>上</Button>
+        <div className='w-56 h-56 rounded-full bg-amber-100 flex items-center justify-center'>
+            {/* up */}
+            <Sector degree={90} start={45} />
+            {/* <div className='w-24 h-24 rounded-full bg-gray-400 flex justify-center items-center'>
+                <span>确定</span>
+            </div> */}
+        </div>
+        <Button className='' onClick={() => publishTopic(RemoteControlTypeList.UP)}>上</Button>
 
         {messages.map((m, i) => (
             <div key={i}>[{m.time}] {m.topic}: {m.payload}</div>
