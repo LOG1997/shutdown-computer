@@ -29,7 +29,10 @@ pub struct MqttConfig {
     pub port: u16,
     pub username: String,
     pub password: String,
-    tls: bool,
+    pub client_id: String,
+    pub tls: bool,
+    pub interval: u64,
+    pub expire_time: u64,
 }
 
 impl AppConfig {

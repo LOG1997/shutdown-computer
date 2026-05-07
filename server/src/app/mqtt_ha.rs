@@ -8,11 +8,11 @@ use std::time::Duration;
  */
 pub async fn start_mqtt(mqtt_config: &MqttConfig) {
     let mut mqtt_options = MqttOptions::new(
-        "rust-mqtt-client-123", // 客户端ID（随便写，唯一即可）
-        "localhost",            // 本地 MQTT 服务器地址
-        1883,                   // 默认端口
+        mqtt_config.client_id.clone(), // 客户端ID（随便写，唯一即可）
+        mqtt_config.host.clone(),      // 本地 MQTT 服务器地址
+        mqtt_config.port,              // 默认端口
     );
-    mqtt_options.set_keep_alive(Duration::from_secs(5));
+    mqtt_options.set_keep_alive(Duration::from_secs(mqtt_config.interval));
 
     // ====================== 2. 创建客户端 ======================
     let (client, mut event_loop) = AsyncClient::new(mqtt_options, 10);
@@ -26,7 +26,7 @@ pub async fn start_mqtt(mqtt_config: &MqttConfig) {
     });
 
     // 等待连接建立
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    tokio::time::sleep(Duration::from_millis(mqtt_config.expire_time)).await;
 
     // ====================== 3. 订阅主题 ======================
     client

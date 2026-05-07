@@ -9,6 +9,7 @@ host = "127.0.0.1"
 enable = true
 host = "172.17.7.24"
 port = 1883
+client_id = "remote_computer"
 username = ""
 password = ""
 tls = false
