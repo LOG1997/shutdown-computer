@@ -1,7 +1,19 @@
-[server]
-https = true
+[web_server]
+enable = false
+https = false
 port = 52011
-host = "0.0.0.0"
+host = "127.0.0.1"
+
+[mqtt]
+# mqtt配置，适配HomeAssistant
+enable = true
+host = "172.17.7.24"
+port = 1883
+username = ""
+password = ""
+tls = false
+interval = 10
+expire_time = 30
 
 [security]
 shutdown_key = "xinglugu"

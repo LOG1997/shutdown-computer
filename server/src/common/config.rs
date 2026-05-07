@@ -4,12 +4,15 @@ use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
-    pub server: ServerConfig,
+    pub web_server: WebServerConfig,
     pub security: SecurityConfig,
+    pub mqtt: MqttConfig,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct ServerConfig {
+pub struct WebServerConfig {
+    pub enable: bool,
+    pub host: String,
     pub port: u16,
     pub https: bool,
 }
@@ -17,6 +20,16 @@ pub struct ServerConfig {
 #[derive(Debug, Deserialize, Clone)]
 pub struct SecurityConfig {
     pub shutdown_key: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct MqttConfig {
+    pub enable: bool,
+    pub host: String,
+    pub port: u16,
+    pub username: String,
+    pub password: String,
+    tls: bool,
 }
 
 impl AppConfig {
@@ -32,11 +45,15 @@ impl AppConfig {
         app_dir.join("config.toml")
     }
     // 获取server
-    pub fn get_server(&self) -> &ServerConfig {
-        &self.server
+    pub fn get_server(&self) -> &WebServerConfig {
+        &self.web_server
     }
     // 获取security
     pub fn get_security(&self) -> &SecurityConfig {
         &self.security
+    }
+    // 获取mqtt配置
+    pub fn get_mqtt(&self) -> &MqttConfig {
+        &self.mqtt
     }
 }
