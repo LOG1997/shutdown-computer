@@ -38,7 +38,34 @@ pub async fn start_mqtt(mqtt_config: &MqttConfig) {
     ));
     // ====================== 2. 创建客户端 ======================
     let (client, mut event_loop) = AsyncClient::new(mqtt_options, 10);
+    // 等待连接建立
+    println!("正在连接 MQTT Broker...");
+    let connect_timeout = Duration::from_secs(mqtt_config.expire_time); // 设置一个合理的超时时间
+    let start_time = std::time::Instant::now();
+    let mut connected = false;
+    // tokio::time::sleep(Duration::from_millis(mqtt_config.expire_time)).await;
 
+    while start_time.elapsed() < connect_timeout {
+        match event_loop.poll().await {
+            Ok(notification) => {
+                if let Event::Incoming(Packet::ConnAck(_)) = notification {
+                    connected = true;
+                    println!("✅ MQTT 连接成功");
+                    break;
+                }
+            }
+            Err(e) => {
+                eprintln!("❌ MQTT 连接过程中出错: {:?}", e);
+                // 可以选择 return 退出函数，或者继续重试
+                return;
+            }
+        }
+    }
+
+    if !connected {
+        eprintln!("❌ MQTT 连接超时");
+        return;
+    }
     // 异步线程处理 MQTT 事件（必须运行）
     let control_online_topic = format!("{}/control/set_status_online", mqtt_config.client_id);
     let launch_app_topic = format!("{}/control/launch_app", mqtt_config.client_id);
@@ -70,9 +97,6 @@ pub async fn start_mqtt(mqtt_config: &MqttConfig) {
             }
         }
     });
-
-    // 等待连接建立
-    tokio::time::sleep(Duration::from_millis(mqtt_config.expire_time)).await;
 
     // ====================== 3. 订阅主题 ======================
     // NOTE:控制电脑的消息在这里订阅
