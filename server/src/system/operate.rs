@@ -1,3 +1,4 @@
+use crate::system::check::launch_app_safe;
 use serde::{Deserialize, Serialize};
 use std::process::Command;
 use sysinfo::{Components, CpuRefreshKind, Disks, System};
@@ -118,6 +119,12 @@ pub fn execute_reboot(immediate: bool) {
         }
     }
 }
+
+pub fn launch_app(app_name: &str) -> Result<(), String> {
+    launch_app_safe(app_name)?;
+    Ok(())
+}
+
 // 定义返回数据的结构体
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SystemInfoResponse {
@@ -149,11 +156,12 @@ pub struct CpuInfo {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MemoryInfo {
-    pub total_memory: u64, // bytes
-    pub used_memory: u64,  // bytes
-    pub free_memory: u64,  // bytes
-    pub total_swap: u64,   // bytes
-    pub used_swap: u64,    // bytes
+    pub total_memory: u64,     // bytes
+    pub used_memory: u64,      // bytes
+    pub available_memory: u64, // bytes
+    pub total_swap: u64,       // bytes
+    pub used_swap: u64,        // bytes
+    pub usage: f32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -205,12 +213,13 @@ pub fn get_system_info_json() -> Option<SystemInfoResponse> {
     };
 
     // 3. 内存信息
-    let memory_info = MemoryInfo {
+    let mut memory_info = MemoryInfo {
         total_memory: sys.total_memory(),
         used_memory: sys.used_memory(),
-        free_memory: sys.free_memory(),
+        available_memory: sys.available_memory(),
         total_swap: sys.total_swap(),
         used_swap: sys.used_swap(),
+        usage: 0.0,
     };
 
     // 4. 硬盘信息
@@ -250,6 +259,9 @@ pub fn get_system_info_json() -> Option<SystemInfoResponse> {
         .sum::<f32>()
         / cpu_comp.len() as f32;
     cpu_info.temperature = cpu_ava_temp;
+    // 计算内存使用率
+    let memory_usage: f32 = (100 * memory_info.used_memory / memory_info.total_memory) as f32;
+    memory_info.usage = memory_usage;
     // 组装最终结构
     let system_info = SystemInfoResponse {
         os: os_info,

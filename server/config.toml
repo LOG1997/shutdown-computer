@@ -5,16 +5,20 @@ port = 52011
 host = "127.0.0.1"
 
 [mqtt]
-# mqtt配置，适配HomeAssistant
 enable = true
-host = "192.168.31.141"
+# mqtt配置，适配HomeAssistant
+host = "127.0.0.1"
 port = 1883
-client_id = "remote_computer"
+client_id = "pc_pc01"
+device_name = "我的电脑"
+device_model = "windows11"
 username = ""
 password = ""
 tls = false
 interval = 10
-expire_time = 30
+expire_time = 20
+launch_app = { "wechat" = "微信", "steam" = "Steam", "tailscale" = "Tailscale", "google-chrome" = "chrome浏览器", "code" = "Vs Code", "zed" = "Zed", "clash-verge" = "Clash Verge" }
+
 
 [security]
 shutdown_key = "xinglugu"

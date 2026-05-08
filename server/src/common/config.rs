@@ -30,9 +30,12 @@ pub struct MqttConfig {
     pub username: String,
     pub password: String,
     pub client_id: String,
+    pub device_name: String,
+    pub device_model: String,
     pub tls: bool,
     pub interval: u64,
     pub expire_time: u64,
+    pub launch_app: serde_json::Value,
 }
 
 impl AppConfig {
