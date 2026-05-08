@@ -346,7 +346,6 @@ pub fn generate_launch_app_payload(
 ) -> serde_json::Value {
     let mut map = serde_json::Map::new();
     let apps = &mqtt_config.launch_app;
-    println!("apps: {:?}", apps);
     if let Some(apps_map) = apps.as_object() {
         for (app_key, app_name) in apps_map.iter() {
             let payload = json!({

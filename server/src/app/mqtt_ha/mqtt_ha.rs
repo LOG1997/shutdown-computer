@@ -7,7 +7,6 @@ use crate::app::mqtt_ha::discover_mqtt::{
 use crate::common::config::MqttConfig;
 use crate::system::operate::{get_system_info_json, launch_app};
 use rumqttc::{AsyncClient, Event, MqttOptions, Packet, QoS, SubscribeFilter};
-use serde_json::json;
 use std::time::Duration;
 
 pub async fn start_mqtt(mqtt_config: &MqttConfig) {
